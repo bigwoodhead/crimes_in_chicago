@@ -47,12 +47,12 @@ df <- df %>%
 ### Rename columns
 
 colnames(df)[colnames(df) == "Date"] <- "Datetime"
-colnames(df)[colnames(df) == "Case Number"] <- "Case_Number"
-colnames(df)[colnames(df) == "Primary Type"] <- "Primary_Type"
-colnames(df)[colnames(df) == "Location Description"] <- "Location_Description"
-colnames(df)[colnames(df) == "Community Area"] <- "Community_Area"
-colnames(df)[colnames(df) == "FBI Code"] <- "FBI_Code"
-colnames(df)[colnames(df) == "Updated On"] <- "Updated_On"
+# colnames(df)[colnames(df) == "Case Number"] <- "Case_Number"
+# colnames(df)[colnames(df) == "Primary Type"] <- "Primary_Type"
+# colnames(df)[colnames(df) == "Location Description"] <- "Location_Description"
+# colnames(df)[colnames(df) == "Community Area"] <- "Community_Area"
+# colnames(df)[colnames(df) == "FBI Code"] <- "FBI_Code"
+# colnames(df)[colnames(df) == "Updated On"] <- "Updated_On"
 
 
 ## Remove duplicate rows
@@ -132,6 +132,30 @@ dfDistrict <- left_join(dfDistrict, dfMonthly, by = "ID")
 dfDistrict$Crime_Rate <- NA
 dfDistrict$Crime_Rate <- dfDistrict$Num/dfDistrict$Den
 
+
+#
+#x <- dfDistrict[dfDistrict$Primary_Type == "NARCOTICS", ]
+x <- as.data.frame(dfDistrict)
+x <- x[ , c("Year_Month", "District", "Primary_Type", "Crime_Rate")]
+x <- x[x$Primary_Type == "CRIM SEXUAL ASSAULT", ]
+#x <- x[!is.na(x$ID), ]
+
+# District 1
+x <- x[x$District == 1, ]
+x <- x[ , c("Year_Month", "Primary_Type", "Crime_Rate")]
+
+#x$District <- as.factor(x$District)
+x$Primary_Type <- as.factor(x$Primary_Type)
+
+
+ggraptR()
+
+
+p <- ggplot(x, aes(Year_Month, Crime_Rate)) + geom_point()
+p + facet_wrap(~Primary_Type)
+  
+  
+    
 
 
 #### Aggregate

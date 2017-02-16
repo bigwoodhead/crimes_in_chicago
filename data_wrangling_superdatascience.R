@@ -18,6 +18,7 @@ setwd("C:/Users/Muhsin Karim/Documents/Data/source_data/kaggle/crimes_in_chicago
 
 ## Load in each file
 df1 <- read_csv("Chicago_Crimes_2001_to_2004.csv")
+#df <- df1
 
 # #! Use a subset of data when writing code !#
 # df <- df1
@@ -55,21 +56,34 @@ colnames(df)[colnames(df) == "Date"] <- "Datetime"
 # colnames(df)[colnames(df) == "Updated On"] <- "Updated_On"
 
 
-## Remove duplicate rows
-df <- df[-which(duplicated(df)), ]
-
-
 ### Change data types
 
 ## Character
 df$ID <- as.character(df$ID)
 
+
+
+## Remove duplicate rows
+#df <- unique(df)
+# dfDup <- df[duplicated(df), ]
+# x <- df[which(df$ID == 4786321), ]
+# x1 <- df[which(df$ID == 8242044), ]
+# x2 <- df[which(df$ID == 643), ]
+
+df <- df[-which(duplicated(df)), ]
+
+
+
+### Change more data types
+
 ## Datetime
-am_pm <- str_sub(df$Datetime, -2, -1) # Record AM/PM
-df$Datetime <- as.POSIXct(df$Datetime, format="%m/%d/%Y %H:%M:%S %p")
+#am_pm <- str_sub(df$Datetime, -2, -1) # Record AM/PM
+#df$Datetime2 <- df$Datetime
+#df$Datetime <- df$Datetime2
+df$Datetime <- as.POSIXct(df$Datetime, format="%m/%d/%Y %I:%M:%S %p")
 
 ## Updated On
-df$Updated_On <- as.POSIXct(df$Updated_On, format="%m/%d/%Y %H:%M:%S %p")
+df$`Updated On` <- as.POSIXct(df$`Updated On`, format="%m/%d/%Y %I:%M:%S %p")
 
 
 #### Create columns
@@ -92,10 +106,10 @@ df$Year_Month <- paste(df$Year, sprintf("%02d", df$Month_Value), sep = "-")
 df$Hour <- NA
 df$Hour <- hour(df$Datetime)
 
-# Apply 24 time if PM
-df$Hour[which(am_pm == "PM")] <- df$Hour[which(am_pm == "PM")] + 12
-df$Hour[which(df$Hour == 24)] <- 0 # Set midnight to 1 am to 0
-df$Hour <- sprintf("%02d", df$Hour)
+# # Apply 24 time if PM
+# df$Hour[which(am_pm == "PM")] <- df$Hour[which(am_pm == "PM")] + 12
+# df$Hour[which(df$Hour == 24)] <- 0 # Set midnight to 1 am to 0
+# df$Hour <- sprintf("%02d", df$Hour)
 
 
 #### Create unique identifier
@@ -103,7 +117,7 @@ df$Hour <- sprintf("%02d", df$Hour)
 
 ## Create unique identifier
 df$Identifier <- NA
-df$Identifier <- paste(df$ID, df$Case_Number, sep = "-")
+df$Identifier <- paste(df$ID, df$`Case Number`, sep = "-")
 
 ## Remove duplicate
 df <- df[order(df$Updated_On, decreasing = T), ]

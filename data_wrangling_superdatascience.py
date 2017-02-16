@@ -10,6 +10,7 @@ This is a temporary script file.
 #### Libraries
 
 import pandas as pd
+import numpy as np
 import os
 
 
@@ -49,7 +50,17 @@ df = df.rename(columns={"Date": "Datetime"})
 
 
 ## Change types
+df['ID2'] = df['ID']
+df['ID2'].astype('str')
+
+
+
+pd.to_numeric(df['ID2'], errors='coerce')
+str(round(df['ID'])).dt.rstrip('0').rstrip('.')
+
 df['ID'] = df['ID'].astype(str)
+
+
 df['Case Number'] = df['Case Number'].astype(str)
 df['Datetime'] = df['Datetime'].astype(str)
 df['Block'] = df['Block'].astype(str)
@@ -79,5 +90,34 @@ df = df.drop_duplicates()
 ## Datetime
 df_copy = df
 
-df['Datetime'] = pd.to_datetime(df['Datetime'], format="%m/%d/%Y %H:%M:%S %p", errors='coerce') # Will not work without coerce... R does this automatically
+#df['Datetime2'] = df['Datetime']
+df['Datetime'] = pd.to_datetime(df['Datetime'], format="%m/%d/%Y %I:%M:%S %p", errors='coerce') # Will not work without coerce... R does this automatically
+
+## Updated On
+df['Updated On'] = pd.to_datetime(df['Updated On'], format="%m/%d/%Y %I:%M:%S %p", errors='coerce')
+
+
+#### Create columns
+
+### Create columns from datetime
+import datetime
+
+## Month name
+df['Month'] = df['Datetime'].dt.strftime('%B')
+
+## Month
+df['Month_Value'] = df['Datetime'].dt.month
+
+## Year_Month
+df['Year_Month'] = df['Datetime'].dt.strftime('%Y-%m')
+
+## Hour
+df['Hour'] = df['Datetime'].dt.hour
+
+
+#### Create unique identifier
+# Use ID and Case Number
+
+## Create unique identifier
+df['ID'] + df['Case Number']
 

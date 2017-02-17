@@ -50,16 +50,20 @@ df = df.rename(columns={"Date": "Datetime"})
 
 
 ## Change types
-df['ID2'] = df['ID']
-df['ID2'].astype('str')
+#df['ID2'] = df['ID']
+df['ID'] = df['ID'].astype('str')
+#df['ID2'].apply(str)
+
+# http://stackoverflow.com/questions/17950374/converting-a-column-within-pandas-dataframe-from-int-to-string
+def trim_fraction(text):
+    if '.0' in text:
+        return text[:text.rfind('.0')]
+    return text
+
+df.ID = df.ID.apply(trim_fraction)
 
 
-
-pd.to_numeric(df['ID2'], errors='coerce')
-str(round(df['ID'])).dt.rstrip('0').rstrip('.')
-
-df['ID'] = df['ID'].astype(str)
-
+#pd.to_numeric(df['ID2'], errors='coerce')
 
 df['Case Number'] = df['Case Number'].astype(str)
 df['Datetime'] = df['Datetime'].astype(str)
@@ -88,7 +92,7 @@ df = df.drop_duplicates()
 ### Change more data types
 
 ## Datetime
-df_copy = df
+#df_copy = df
 
 #df['Datetime2'] = df['Datetime']
 df['Datetime'] = pd.to_datetime(df['Datetime'], format="%m/%d/%Y %I:%M:%S %p", errors='coerce') # Will not work without coerce... R does this automatically
@@ -119,5 +123,18 @@ df['Hour'] = df['Datetime'].dt.hour
 # Use ID and Case Number
 
 ## Create unique identifier
-df['ID'] + df['Case Number']
+df['Identifier'] = df['ID'] + '-' + df['Case Number']
+
+## Remove duplicate
+df = df.sort(['Updated On'], ascending=False)
+df = df.drop_duplicates('Identifier')
+
+#### Crime rate per District
+
+## Get crime counts for each Primary Type 
+
+
+
+
+
 

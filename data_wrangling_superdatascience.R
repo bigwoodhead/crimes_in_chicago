@@ -47,8 +47,8 @@ df$ID <- as.character(df$ID)
 
 ### Create datetimes
 
-df$Datetime <- as.POSIXct(df$Datetime, format="%m/%d/%Y %I:%M:%S %p") # Datetime
-df$`Updated On` <- as.POSIXct(df$`Updated On`, format="%m/%d/%Y %I:%M:%S %p") # Updated On
+df$Datetime <- as.POSIXct(df$Datetime, format="%m/%d/%Y %I:%M:%S %p")
+df$`Updated On` <- as.POSIXct(df$`Updated On`, format="%m/%d/%Y %I:%M:%S %p")
 
 
 #### Create columns
@@ -72,18 +72,18 @@ df$Hour <- NA
 df$Hour <- hour(df$Datetime)
 
 
-#### Create unique identifier
+#### Remove duplicates
 
 ## Create unique identifier
 df$Identifier <- NA
 df$Identifier <- paste(df$ID, df$`Case Number`, sep = "-")
 
-## Remove duplicate
+## Remove duplicates
 df <- df[order(df$`Updated On`, decreasing = T), ]
 df <- df[-which(duplicated(df$Identifier)), ]
 
 
-#### Crime rate per District
+#### Crime rate per month per District
 
 ## Get crime counts for each Primary Type 
 dfDistrict <- df %>%
@@ -95,7 +95,7 @@ dfDistrict <- df %>%
 dfDistrict$ID <- NA
 dfDistrict$ID <- paste(dfDistrict$`Year Month`, dfDistrict$District, sep = " ")
 
-## Get crime counts for each Month
+## Get crime counts for each month
 dfMonthly <- df %>%
   filter(!is.na(Datetime)) %>% # to match Python
   filter(!is.na(District)) %>%
@@ -105,7 +105,7 @@ dfMonthly$ID <- NA
 dfMonthly$ID <- paste(dfMonthly$`Year Month`, dfMonthly$District, sep = " ")
 dfMonthly <- dfMonthly[ , c("ID", "Denominator")]
 
-## Join
+## Join to get numerator and denominator together
 dfJoin <- left_join(dfDistrict, dfMonthly, by = "ID")
 dfJoin$`Crime Rate` <- NA
 dfJoin$`Crime Rate` <- dfJoin$Numerator/dfJoin$Denominator * 100
@@ -116,8 +116,7 @@ dfJoin$`Crime Rate` <- dfJoin$Numerator/dfJoin$Denominator * 100
 ## Prepare data frame for Theft from 2016
 dfPrimaryType <- dfJoin[dfJoin$`Primary Type` == "THEFT", ]
 dfPrimaryType <- dfPrimaryType[dfPrimaryType$`Year Month` > "2015-12", ]
-#dfPrimaryType <- as.data.frame(dfPrimaryType)
-#dfPrimaryType$District <- as.factor(dfPrimaryType$District)
+dfPrimaryType$District <- as.factor(dfPrimaryType$District)
 
 
 ### Plots

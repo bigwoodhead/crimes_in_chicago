@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 """
 ##### Crimes in Chicago - Data wrangling exmaple for SuperDataScience
+
 """
 
-#### Libraries
+#### Packages
 
-## Load libraries
+## Load packages
 import os
 import pandas as pd
 import numpy as np
@@ -38,7 +39,7 @@ del df1, df2, df3, df4
 
 #### Format data
 
-### Remove columns
+## Remove columns
 df = df.drop(['X1', 'IUCR', 'X Coordinate', 'Y Coordinate', 'Location'], axis=1)
 
 ## Rename columns
@@ -47,16 +48,15 @@ df = df.rename(columns={"Date": "Datetime"})
 
 ### Change data types
 
-df['ID'] = df['ID'].astype('str')
-
-## Remove decimals
-# http://stackoverflow.com/questions/17950374/converting-a-column-within-pandas-dataframe-from-int-to-string
-def trim_fraction(text):
+## Change data type for ID
+def trim_fraction(text): # http://stackoverflow.com/questions/17950374/converting-a-column-within-pandas-dataframe-from-int-to-string
     if '.0' in text:
         return text[:text.rfind('.0')]
     return text
+df['ID'] = df['ID'].astype('str')
 df.ID = df.ID.apply(trim_fraction)
 
+## Change data types for all columns
 df['Case Number'] = df['Case Number'].astype(str)
 df['Datetime'] = df['Datetime'].astype(str)
 df['Block'] = df['Block'].astype(str)
@@ -104,25 +104,25 @@ df['Hour'] = df['Datetime'].dt.hour
 ## Create unique identifier
 df['Identifier'] = df['ID'] + '-' + df['Case Number']
 
-## Remove duplicate
+## Remove duplicates
 df = df.sort(['Updated On'], ascending=False)
 df = df.drop_duplicates('Identifier')
 
 
-#### Crime rate per District
+#### Crime rate per month per District
 
 ## Get crime counts for each Primary Type 
 dfDistrict = df.groupby(['Year Month', 'District', 'Primary Type']).size().reset_index()
 dfDistrict = dfDistrict.rename(columns={0:'Numerator'})
 dfDistrict['ID'] = dfDistrict['Year Month'] + ' ' + dfDistrict['District'].astype(str)
 
-## Get crime counts for each Month
+## Get crime counts for each month
 dfMonth = df.groupby(['Year Month', 'District']).size().reset_index()
 dfMonth = dfMonth.rename(columns={0:'Denominator'})
 dfMonth['ID'] = dfMonth['Year Month'] + ' ' + dfMonth['District'].astype(str)
 dfMonth = dfMonth[['ID', 'Denominator']]
 
-## Join
+## Join to get numerator and denominator together
 dfJoin = pd.merge(dfDistrict, dfMonth, how='left')
 dfJoin['Crime Rate'] = dfJoin['Numerator']/dfJoin['Denominator'] * 100
 
@@ -135,8 +135,6 @@ dfPrimaryType = dfPrimaryType[(dfPrimaryType['Year Month'] > "2015-12")]
 
 
 ### Plots
-
-## Spread data frame
 
 ## Crime frequency - theft
 dfCrimeFreq = dfPrimaryType.pivot(index='Year Month', columns='District')['Numerator']
